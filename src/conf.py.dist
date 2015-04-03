@@ -2,3 +2,4 @@
 # please copy/paste this file and rename it as conf.py
 
 IMGSET_PATH = "../../LandWater/LandWater/"
+PATCHES_PATH = "../../LandWater/LandWater/patches.npy"

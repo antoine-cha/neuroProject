@@ -21,12 +21,12 @@ def subArray(arr, x, y):
    
   return subArr
 
-
 def rgb2gray(rgb):
   return np.dot(rgb[...,:3], [0.299, 0.587, 0.144])
 
 
 patches = []
+owd = os.getcwd()
 os.chdir(IMGSET_PATH)
 for file in glob.glob("*.tif"):
   print("File "+file)
@@ -40,7 +40,10 @@ for file in glob.glob("*.tif"):
   
     
 
-
+# Save the patches in a file
+# into patches.npy
+os.chdir(owd)
+np.save(PATCHES_PATH, patches)
 
 
 
