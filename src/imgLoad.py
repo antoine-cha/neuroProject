@@ -6,7 +6,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from random import randint
+from random import randint, shuffle
 
 print("Loading images from: " + IMGSET_PATH)
 
@@ -26,18 +26,20 @@ if __name__ == "__main__":
   sizePatch = 20 # Size in pixel of a patch
 
   patches = []
+  #Read image files
   for file in glob.glob(IMGSET_PATH+"*.tif"):
     print("File "+file)
     img = plt.imread(IMGSET_PATH+file)
     gray = rgb2gray(img)
    
+    #Extract random patches
     for i in range(nbrPatch):
       x = randint(0,gray.shape[0]-sizePatch)
       y = randint(0,gray.shape[1]-sizePatch)
       patches.append(subArray(gray,x,y,sizePatch))
   
   #Shuffle patches:
-    
+  np.random.shuffle(patches)
   
   # Save the patches in a file
   # into patches.npy
