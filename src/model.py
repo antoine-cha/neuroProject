@@ -63,9 +63,10 @@ class Model:
         p = n//10 + 1
         if (n % 10 == 0):
             p -= 1
-        f, axarr = plt.subplots(p, min(10, n), sharex=True, sharey=True)
         for i in range(n):
-            axarr[i//10][i%10].imshow(b[i, :, :], interpolation='none', cmap='Greys')
+            plt.subplot(p, 10, i)
+            plt.axis('off')
+            plt.imshow(b[i, :, :], cmap='gray')
         plt.show()
         return 0
 
