@@ -48,7 +48,7 @@ class Model:
 
         return -0.5 * (a + b + c)
 
-    def show_weight(self):
+    def show_features(self):
         """
         Display the feature vectors as black and white images
         """
@@ -67,4 +67,4 @@ if __name__ == "__main__":
     w = np.random.rand(1, 2)
     b = np.random.rand(30, 20, 20)
     mod = Model(w, b)
-    mod.show_weight()
+    mod.show_features()
