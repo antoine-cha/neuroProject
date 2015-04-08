@@ -16,7 +16,11 @@ class Model:
         b : 3D-tensors n_features * 20 * 20,
             consists in all the feature vectors
         """
-        self.w = w  # weights of the connections
+        if(w.shape[1]!=b.shape[0]):
+            raise ValueError(" Dimensions should match \n"+
+                             " w.shape[1]!=b.shape[0]")
+
+        self.w = w/np.sum(w)  # weights of the connections
         self.b = b  # features vectors (filters)
 
     def forward_prop(self, x):
@@ -26,7 +30,10 @@ class Model:
         x : 2D matrix,
             input image, should be the same size as w
         """
-        return np.dot(self.w, self.b*x)
+        c = np.sum(self.b*x, axis=(1,2))
+        print(c.shape)
+        print(self.w.shape)
+        return np.dot(self.w, c)
 
     def log_likelihood(self, x, y):
         """
@@ -54,17 +61,22 @@ class Model:
         """
         n = self.b.shape[0]
         p = n//10 + 1
-        if (n%10==0):
+        if (n % 10 == 0):
             p -= 1
-        f, axarr = plt.subplots(p, min(10, n))
+        f, axarr = plt.subplots(p, min(10, n), sharex=True, sharey=True)
         for i in range(n):
-            axarr[i//10][i%10].matshow(b[i, :, :], interpolation='none', cmap='Greys')
+            axarr[i//10][i%10].imshow(b[i, :, :], interpolation='none', cmap='Greys')
         plt.show()
         return 0
 
 
 if __name__ == "__main__":
-    w = np.random.rand(1, 2)
-    b = np.random.rand(30, 20, 20)
+    w = np.random.rand(1, 20)
+    b = np.random.rand(20, 20, 20)
     mod = Model(w, b)
     mod.show_features()
+    x = np.random.rand(20, 20)
+    a = mod.forward_prop(x)
+    print(a)
+
+    #print(mod.log_likelihood(x, a))
