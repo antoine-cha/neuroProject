@@ -112,7 +112,7 @@ class Model:
         bx = np.dot(b, x) .- 1
         wbx = np.dot(w, bx)
 
-        while True:
+        while True: #/!\ Modify this line /!\
             p = np.abs(p)
             p = np.prod(np.exp(-p))
             y = y + eta*(wbx + p)
