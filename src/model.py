@@ -1,6 +1,7 @@
 # Define the model used in the paper
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.linalg import expm
 
 
 class Model:
@@ -46,22 +47,36 @@ class Model:
         a = np.sum(yw)
         # equation [S4] in supplementary material
         b_t = np.transpose(self.b, (0, 2, 1))
-        b_vec = np.reshape(self.b, (self.b.shape[0], self.b.shape[1]*self.b.shape[2]))
+        b_vec = np.reshape(self.b,
+                           (self.b.shape[0], self.b.shape[1]*self.b.shape[2]))
         b_t_vec = np.reshape(b_t, (b_t.shape[0], b_t.shape[1]*b_t.shape[2]))
         # outer refers to the product column by row which creates a rank-1
         # matrix out of 2 vectors
         logC = sum([yw[k] * np.outer(b_vec[k, :], b_t_vec[k, :])
                     for k in range(yw.shape[0])])
-        print("logC :", logC)
 
-        #We need to unroll the images
+        # We need to unroll the images
         x_vec = np.reshape(x, (x.shape[0]*x.shape[1]))
-        b = np.dot(np.transpose(x_vec), np.dot(np.exp(-logC), x_vec))
+        # Use expm to get the exponential of the matrix
+        # and not the matrix of the exp of the components
+        b = np.dot(np.transpose(x_vec), np.dot(expm(-logC), x_vec))
 
-        # Compute the prior on sparsity
-        c = -sum(np.abs(y))
+        return -0.5 * (a + b)
 
-        return -0.5 * (a + b + c)
+    def grad_b_ll(self, x, y, k):
+        """
+        Compute the gradient of the loglikelihood in bk
+        -----------------------------------------------
+        """
+        x_vec = np.reshape(x, (x.shape[0]*x.shape[1]))
+        yw = np.dot(np.transpose(y), self.w)  # Y^T * W
+        logC = sum([yw[k] * np.outer(b_vec[k, :], b_t_vec[k, :])
+                    for k in range(yw.shape[0])])
+        res = np.dot(np.transpose(
+
+
+
+        return 0
 
     def show_features(self):
         """
@@ -84,9 +99,10 @@ if __name__ == "__main__":
     s_features = 5
     w = np.random.rand(1, n_features)
     b = np.random.rand(n_features, s_features, s_features)
+    b = b - np.mean(b)
     mod = Model(w, b)
-    #mod.show_features()
     x = np.random.rand(s_features, s_features)
+    print("test patch :")
     print(x)
     a = mod.forward_prop(x)
     print(a)
