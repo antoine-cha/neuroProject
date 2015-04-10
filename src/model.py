@@ -68,15 +68,17 @@ class Model:
         Compute the gradient of the loglikelihood in bk
         -----------------------------------------------
         """
+        b_t = np.transpose(self.b, (0, 2, 1))
         x_vec = np.reshape(x, (x.shape[0]*x.shape[1]))
+        b_vec = np.reshape(self.b,
+                           (self.b.shape[0], self.b.shape[1]*self.b.shape[2]))
+        b_t_vec = np.reshape(b_t, (b_t.shape[0], b_t.shape[1]*b_t.shape[2]))
         yw = np.dot(np.transpose(y), self.w)  # Y^T * W
         logC = sum([yw[k] * np.outer(b_vec[k, :], b_t_vec[k, :])
                     for k in range(yw.shape[0])])
-        res = np.dot(np.transpose(
-
-
-
-        return 0
+        res = np.dot(np.transpose(x_vec), expm(-logC))
+        res_ = np.sum(yw)*np.outer(b_vec[k, :], x_vec)
+        return np.dot(res, res_)
 
     def show_features(self):
         """
@@ -95,11 +97,11 @@ class Model:
 
     def map(x, y0, w, b, eta):
         """
-        Calculate the MAP y 
+        Calculate the MAP y
         -----------------------------------------------
         x : n_features * 1,
             input image, considered as a vector /!\
-        y0 : n_features * 1, 
+        y0 : n_features * 1,
             initial guess for y
         w : n_y * n_features matrix,
             weights the activations for each neurons
@@ -109,7 +111,7 @@ class Model:
         """
 
         y = y0
-        bx = np.dot(b, x) .- 1
+        bx = np.dot(b, x) - 1
         wbx = np.dot(w, bx)
 
         while True:
@@ -133,3 +135,4 @@ if __name__ == "__main__":
     a = mod.forward_prop(x)
     print(a)
     print(mod.log_likelihood(x, a))
+    print(mod.grad_b_ll(x, a, 1))
