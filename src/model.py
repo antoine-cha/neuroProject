@@ -114,7 +114,7 @@ class Model:
 
     while True:
         p = np.abs(p)
-        p = np.prod(p)
+        p = np.prod(np.exp(-p))
         y = y + eta*(wbx + p)
 
     return y
