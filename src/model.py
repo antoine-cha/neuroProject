@@ -93,6 +93,32 @@ class Model:
         plt.show()
         return 0
 
+    def map(x, y0, w, b, eta):
+    """
+    Calculate the MAP y 
+    -----------------------------------------------
+    x : n_features * 1,
+        input image, considered as a vector /!\
+    y0 : n_features * 1, 
+        initial guess for y
+    w : n_y * n_features matrix,
+        weights the activations for each neurons
+    b : n_features * 20^2,
+        consists in all the feature vectors
+    eta : step for the gradient descent
+    """
+
+    y = y0
+    bx = np.dot(b, x) .- 1
+    wbx = np.dot(w, bx)
+
+    while True:
+        p = np.abs(p)
+        p = np.prod(p)
+        y = y + eta*(wbx + p)
+
+    return y
+
 
 if __name__ == "__main__":
     n_features = 2
