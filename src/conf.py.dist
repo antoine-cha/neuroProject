@@ -3,3 +3,4 @@
 
 IMGSET_PATH = "../../LandWater/LandWater/"
 PATCHES_PATH = "../../LandWater/LandWater/patches.npy"
+OUTPUT_PATH = "../../output/"
