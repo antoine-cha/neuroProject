@@ -6,30 +6,34 @@ function learn()
 %  yan karklin.  jan 2010.
 
 
+%% Learning Rates
+params.epsy = 0.005;    % step size for inference of y's
+params.epsb = 0.0000005;    % step size for gradient ascent on dL/dB
+params.epsw = 0.0000005;     % step size for gradient ascent on dL/dw
 
-params.epsy = 0.05;    % step size for inference of y's
-params.epsb = 0.05;    % step size for gradient ascent on dL/dB
-params.epsw = 0.05;     % step size for gradient ascent on dL/dw
+%%
 params.decayw = 0.1;   % decay amount for weights w
 params.yiters = 50;    % number of steps in MAP inference of y
 params.yvar	 = 1;       % variance of y
 
-params.side = 20;   
+params.side = 20;
 params.I = params.side * params.side;  % dimensionality of input
-params.J = 40;  % number of units (y's) in the model 
-params.K = 50;  % number of directions in input space used to stretch the covariance matrix
+params.J = 80;  % number of units (y's) in the model 
+params.K = 100;  % number of directions in input space used to stretch the covariance matrix
                %   i.e. number of vectors in B
-params.N = 100; % data batch size
+params.N = 10; % data batch size
 
 % Folder params
 % Folder where are the patches
 params.imagefolder = fullfile(fullfile(pwd, 'patches'),'vanHaterenPreprocessed');
 % Folder where will be written the filters
 params.featfolder = fullfile(pwd,'features');
+% File containing the dataset
+params.dataset = fullfile(pwd, 'dataset.mat');
 
 params.debug    = 0;
 params.nb_draw = 0;
-params.dispfreq = 20;
+params.dispfreq = 50;
 % Frequence for writing the filters
 params.dispfeatfreq = 50;
 
@@ -40,18 +44,20 @@ ax = setUpFig(params);
 [Model trueModel Hist] = initModel(params);
 % Load the patches
 fprintf('Loading the images.......');
-dataset = getImages(params.imagefolder, params.side);
+%dataset = getImages(params.imagefolder, params.side);
+% Assuming the dataset is at params.dataset
+dataset = importdata(params.dataset);
 fprintf('Done\n');
 fprintf('Starting to iterate over the dataset :\n');
 % main learning loop
 for t=1:10000,
-    fprintf(num2str(t));
-    fprintf(', ');
+
     % Get a new batch of images
     Data.x = double(getNext(dataset, t, params.N))';
     % Forward prop to get the starting ys
-    Data.y = forwardProp(Data, Model, params);
-    
+    %Data.y = forwardProp(Data, Model, params);
+    % Initialise y with a Laplacian distribution
+    Data.y = laprnd(params.J,params.N);
     % infer MAP estimate for v
     Data = inferLatents(Model, Data, params);
     
@@ -73,6 +79,8 @@ for t=1:10000,
     end;
     params.nb_draw = t;
     if ~rem(t,params.dispfeatfreq),
+        fprintf(num2str(t));
+        fprintf(', ');
         drawFeatures(Model, params);
         % Save variables to file
         save('weights.mat','-struct', 'Model', 'w');

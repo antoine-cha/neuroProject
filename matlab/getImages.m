@@ -22,4 +22,4 @@ for f=2:fmax
    temp = reshape(temp, [1, side*side]); % will crash if wrong size
    images = [images; temp];
 end
-fprintf('\n')
+fprintf('\n');
