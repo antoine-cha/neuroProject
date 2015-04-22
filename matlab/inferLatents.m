@@ -52,7 +52,8 @@ end;
 
 function dy = calcDeltay(Model, Data, params)
 % uses series taylor expansion for the exponential
-BB = Model.b'*Model.b;  wy = -Model.w*Data.y;
+BB = Model.b' * Model.b;
+wy = -Model.w * Data.y;
 
 
 C0 = Model.b'*Data.x;  

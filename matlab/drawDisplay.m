@@ -5,7 +5,7 @@ Hist.T = [Hist.T t];
 Hist.L = [Hist.L calcL(Model, Data, params)];
 
 saxes(ax(1)); 
-plot(Hist.T, Hist.L,'.k'); 
+plot(Hist.T, Hist.L,'x-k'); 
 title(sprintf('[iter %d] log likelihood %.2f',Hist.T(end),Hist.L(end)));
 
 drawnow; 

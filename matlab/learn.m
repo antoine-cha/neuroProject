@@ -16,59 +16,68 @@ params.yvar	 = 1;       % variance of y
 
 params.side = 20;   
 params.I = params.side * params.side;  % dimensionality of input
-params.J = 10;  % number of units (y's) in the model 
-params.K = 10;  % number of directions in input space used to stretch the covariance matrix
+params.J = 40;  % number of units (y's) in the model 
+params.K = 50;  % number of directions in input space used to stretch the covariance matrix
                %   i.e. number of vectors in B
 params.N = 100; % data batch size
 
 % Folder params
-params.imagefolder = fullfile(pwd, 'images');
+% Folder where are the patches
+params.imagefolder = fullfile(fullfile(pwd, 'patches'),'vanHaterenPreprocessed');
+% Folder where will be written the filters
 params.featfolder = fullfile(pwd,'features');
 
 params.debug    = 0;
 params.nb_draw = 0;
 params.dispfreq = 20;
-params.dispfeatfreq = 1;
+% Frequence for writing the filters
+params.dispfeatfreq = 50;
 
 
 % Function has changed, only displays the log likelihood now
 ax = setUpFig(params);
 
 [Model trueModel Hist] = initModel(params);
-
-% Function to display the filters
-drawFeatures(Model, params);
-
+% Load the patches
+fprintf('Loading the images.......');
+dataset = getImages(params.imagefolder, params.side);
+fprintf('Done\n');
+fprintf('Starting to iterate over the dataset :\n');
 % main learning loop
 for t=1:10000,
     fprintf(num2str(t));
     fprintf(', ');
-  % Change the getData interface to give back images as vectors
-  Data = getData(params, trueModel);
-
-  % infer MAP estimate for v
-  Data = inferLatents(Model, Data, params);
-
-  % use this to take a gradient step in b, w
-  [db dw] = calcDeltaBw(Model, Data, params); 
-  db = cliprange(db,2); dw = cliprange(dw,2);
-  
-  % weight decay to w
-  dw = dw - params.decayw*Model.w; 
-
-  Model.b  = Model.b  + params.epsb  * db;
-  Model.w  = Model.w  + params.epsw  * dw;
-
-  % keep vectors in B unit-lenglfth
-  Model.b = Model.b * diag(1./sqrt(sum(Model.b.^2)));
-  
-  if ~rem(t,params.dispfreq),
-    Hist = drawDisplay(trueModel, Model, Data, Hist, params, ax, t);
-  end;
-  params.nb_draw = t;
-  if ~rem(t,params.dispfeatfreq),
-      drawFeatures(Model, params)
-  end
+    % Get a new batch of images
+    Data.x = double(getNext(dataset, t, params.N))';
+    % Forward prop to get the starting ys
+    Data.y = forwardProp(Data, Model, params);
+    
+    % infer MAP estimate for v
+    Data = inferLatents(Model, Data, params);
+    
+    % use this to take a gradient step in b, w
+    [db dw] = calcDeltaBw(Model, Data, params);
+    db = cliprange(db,2); dw = cliprange(dw,2);
+    
+    % weight decay to w
+    dw = dw - params.decayw*Model.w;
+    
+    Model.b  = Model.b  + params.epsb  * db;
+    Model.w  = Model.w  + params.epsw  * dw;
+    
+    % keep vectors in B unit-lenglfth
+    Model.b = Model.b * diag(1./sqrt(sum(Model.b.^2)));
+    
+    if ~rem(t,params.dispfreq),
+        Hist = drawDisplay(trueModel, Model, Data, Hist, params, ax, t);
+    end;
+    params.nb_draw = t;
+    if ~rem(t,params.dispfeatfreq),
+        drawFeatures(Model, params);
+        % Save variables to file
+        save('weights.mat','-struct', 'Model', 'w');
+        save('features.mat','-struct', 'Model', 'b');
+    end
   
 end;
 
